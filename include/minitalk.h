@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 13:43:57 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/17 01:01:13 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/19 02:12:40 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,10 @@
 # include <ft/string/parse.h>
 # include <ft/string.h>
 
+# include <limits.h>
 # include <signal.h>
 # include <stdlib.h>
+# include <stdint.h>
 # include <unistd.h>
 
 # ifdef MT_CLIENT

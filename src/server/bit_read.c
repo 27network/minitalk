@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 21:27:36 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/17 00:02:16 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/19 02:21:12 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ t_mt_reader	*mt_get_reader(pid_t pid)
 	if (!reader)
 		return (NULL);
 	reader->pid = pid;
-	reader->buffer = ft_calloc(1, sizeof(size_t));
+	reader->buffer = ft_calloc(1, sizeof(char));
 	reader->bits = 0;
 	reader->init = 0;
 	ft_lstadd_front(&g_server.readers, ft_lstnew(reader));
