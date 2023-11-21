@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 17:23:49 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/20 23:45:56 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 04:59:20 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,26 +54,23 @@ static void	mt_signal_handler(int signum)
 	g_pid = 0;
 }
 
-static int	mt_send_message(char *message)
+static int	mt_send_message(char *msg)
 {
-	if (g_pid <= 0)
+	int		i;
+	char	*message;
+
+	mt_send_bit(mt_compress_data(msg, &message));
+	i = 0;
+	while (message && message[i] && g_pid)
 	{
-		ft_putendl_fd(2, "Invalid PID.");
-		return (-3);
-	}
-	if (kill(g_pid, 0) < 0)
-	{
-		ft_putendl_fd(2, "Unknown PID.");
-		return (-4);
-	}
-	while (*message && g_pid)
-	{
-		if (mt_send_char(*message++))
+		if (mt_send_char(message[i++]))
 		{
 			ft_putendl_fd(2, "Error while sending message.");
+			free(message);
 			return (1);
 		}
 	}
+	free(message);
 	mt_send_char(0);
 	g_pid = 0;
 	return (0);
@@ -81,7 +78,6 @@ static int	mt_send_message(char *message)
 
 int	main(int argc, char *argv[])
 {
-	char	*message;
 	char	*pid;
 
 	if (argc != 3)
@@ -91,7 +87,7 @@ int	main(int argc, char *argv[])
 		pid = "<pid>";
 		if (argc > 1)
 			pid = argv[1];
-		ft_dprintf(2, "Usage: %s %5s <message>\n", argv[0], pid);
+		ft_dprintf(2, "Usage: %s %s <message>\n", argv[0], pid);
 		if (argc > 3)
 			return (-2);
 		return (-1);
@@ -101,7 +97,10 @@ int	main(int argc, char *argv[])
 		signal(SIGINT, &mt_signal_handler);
 		signal(SIGUSR1, &mt_signal_handler);
 		g_pid = ft_atoi(argv[1]);
-		message = argv[2];
-		return (mt_send_message(message));
+		if (g_pid <= 0 || kill(g_pid, 0) < 0)
+			ft_putendl_fd(2, "Invalid PID.");
+		if (g_pid <= 0 || kill(g_pid, 0) < 0)
+			return (-3);
+		return (mt_send_message(argv[2]));
 	}
 }

@@ -6,7 +6,7 @@
 #    By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2023/11/21 01:02:21 by kiroussa         ###   ########.fr        #
+#    Updated: 2023/11/21 17:40:08 by kiroussa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ CLIENT_SRC		= main.c
 SERVER_SRC		= main.c \
 				  buffer.c
 
-COMMON_SRC		= rle.c
+COMMON_SRC		= rle/rle.c \
+				  compress.c
 
 BONUS_CLIENT_SRC:= $(CLIENT_SRC:.c=_bonus.c)
 BONUS_SERVER_SRC:= $(SERVER_SRC:.c=_bonus.c)
@@ -46,7 +47,7 @@ BONUS_CLIENT_OBJ+= $(COMMON_OBJ)
 BONUS_SERVER_OBJ+= $(COMMON_OBJ)
 
 CC				= clang
-CFLAGS			= -Wall -Wextra -Werror
+CFLAGS			= -Wall -Wextra -Werror -g3
 COPTS			= -I $(INCLUDES) -I $(LIBFT_SRC)/include
 
 all:			$(NAME)

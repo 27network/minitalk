@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 13:43:57 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/21 00:56:45 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 17:51:34 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 /* ************************************************************************** */
 
 #  ifndef MT_DELAY
-#   define MT_DELAY 300
+#   define MT_DELAY 500
 #  endif // MT_DELAY
 
 # endif // MT_CLIENT
@@ -44,15 +44,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#  define MT_SERVER_BUFFERS 32
-#  define MT_SERVER_BUFFER_SIZE 32
+#  define MT_SERVER_BUFFERS 16
+#  define MT_SERVER_BUFFER_SIZE 256
 
 typedef struct s_mt_buffer
 {
-	uint8_t		data[MT_SERVER_BUFFER_SIZE];
+	uint8_t		data[MT_SERVER_BUFFER_SIZE + 1];
 	uint16_t	size;
 	bool		ready;
-	int8_t		uses_rle;
 }	t_mt_buffer;
 
 void		mt_reset_buffer(t_mt_buffer *buffer);
@@ -62,8 +61,10 @@ typedef struct s_mt_server
 {
 	bool		running;
 	pid_t		last_pid;
-	t_mt_buffer	buffers[MT_SERVER_BUFFERS];
+	uint8_t		*main_buffer;
+	t_mt_buffer	subbuffers[MT_SERVER_BUFFERS];
 	uint8_t		current_buffer;
+	int8_t		uses_rle;
 }	t_mt_server;
 
 void		mt_setup_signals(int enabled);
@@ -76,8 +77,14 @@ void		mt_setup_signals(int enabled);
 /*                                                                            */
 /* ************************************************************************** */
 
-bool		mt_should_rle(char *str);
-char		*mt_encode_rle(char *str);
+int			mt_compress_data(char *data, char **output);
+int			mt_decompress_data(char *data, char **output);
+
+# ifdef MT_COMMON
+
+bool		mt_should_rle(char *str, char **rle_string);
 char		*mt_decode_rle(char *str);
+
+# endif // MT_COMMON
 
 #endif // MINITALK_H
