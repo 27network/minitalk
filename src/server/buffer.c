@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 22:55:16 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/21 05:04:56 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:13:59 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	mt_read_bit(int bit)
 	if (buf->size == MT_SERVER_BUFFER_SIZE * 8)
 	{
 		buf->ready = true;
-		g_server.current_buffer = (g_server.current_buffer + 1) 
+		g_server.current_buffer = (g_server.current_buffer + 1)
 			% MT_SERVER_BUFFERS;
 	}
 	if (buf->size % 8 == 0 && buf->data[buf->size / 8 - 1] == '\0')

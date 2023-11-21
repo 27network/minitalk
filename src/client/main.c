@@ -6,28 +6,38 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 17:23:49 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/21 04:59:20 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:26:07 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define MT_CLIENT
 #include "minitalk.h"
 
-int	g_pid;
+t_mt_client	g_client;
 
 static int	mt_send_bit(char bit)
 {
+	size_t	timeout;
+
+	g_client.ack_status = 0;
 	if (bit)
 	{
-		if (kill(g_pid, SIGUSR1) < 0)
+		if (kill(g_client.pid, SIGUSR1) < 0)
 			return (1);
 	}
 	else
 	{
-		if (kill(g_pid, SIGUSR2) < 0)
+		if (kill(g_client.pid, SIGUSR2) < 0)
 			return (1);
 	}
-	usleep(MT_DELAY);
+	timeout = 0;
+	while (g_client.ack_status != 1)
+	{
+		timeout++;
+		usleep(1);
+		if (timeout > MT_CLIENT_TIMEOUT || !g_client.pid)
+			return (g_client.pid);
+	}
 	return (0);
 }
 
@@ -48,31 +58,30 @@ static int	mt_send_char(char c)
 static void	mt_signal_handler(int signum)
 {
 	if (signum == SIGINT)
+	{
 		ft_putendl("\r[*] SIGINT received. Exiting...");
-	mt_send_char(0);
-	mt_send_char(0);
-	g_pid = 0;
+		mt_send_char(0);
+		mt_send_char(0);
+		g_client.pid = 0;
+	}
+	else
+		g_client.ack_status = (signum == SIGUSR1);
 }
 
 static int	mt_send_message(char *msg)
 {
 	int		i;
-	char	*message;
 
-	mt_send_bit(mt_compress_data(msg, &message));
 	i = 0;
-	while (message && message[i] && g_pid)
+	while (msg && msg[i] && g_client.pid)
 	{
-		if (mt_send_char(message[i++]))
+		if (mt_send_char(msg[i++]))
 		{
-			ft_putendl_fd(2, "Error while sending message.");
-			free(message);
+			ft_putendl_fd(2, "Error while sending message. Server timeout?");
 			return (1);
 		}
 	}
-	free(message);
 	mt_send_char(0);
-	g_pid = 0;
 	return (0);
 }
 
@@ -96,10 +105,10 @@ int	main(int argc, char *argv[])
 	{
 		signal(SIGINT, &mt_signal_handler);
 		signal(SIGUSR1, &mt_signal_handler);
-		g_pid = ft_atoi(argv[1]);
-		if (g_pid <= 0 || kill(g_pid, 0) < 0)
+		g_client.pid = ft_atoi(argv[1]);
+		if (g_client.pid <= 0 || kill(g_client.pid, 0) < 0)
 			ft_putendl_fd(2, "Invalid PID.");
-		if (g_pid <= 0 || kill(g_pid, 0) < 0)
+		if (g_client.pid <= 0 || kill(g_client.pid, 0) < 0)
 			return (-3);
 		return (mt_send_message(argv[2]));
 	}

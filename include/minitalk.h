@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 13:43:57 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/21 17:51:34 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:36:53 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#  ifndef MT_DELAY
-#   define MT_DELAY 500
-#  endif // MT_DELAY
+#  define MT_CLIENT_TIMEOUT 5000
+
+typedef struct s_mt_client
+{
+	int		pid;
+	uint8_t	ack_status;
+}	t_mt_client;
 
 # endif // MT_CLIENT
 
@@ -44,8 +48,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#  define MT_SERVER_BUFFERS 16
-#  define MT_SERVER_BUFFER_SIZE 256
+#  define MT_SERVER_BUFFERS 32
+#  define MT_SERVER_BUFFER_SIZE 2048
 
 typedef struct s_mt_buffer
 {
@@ -61,30 +65,12 @@ typedef struct s_mt_server
 {
 	bool		running;
 	pid_t		last_pid;
-	uint8_t		*main_buffer;
 	t_mt_buffer	subbuffers[MT_SERVER_BUFFERS];
-	uint8_t		current_buffer;
-	int8_t		uses_rle;
+	size_t		current_buffer;
 }	t_mt_server;
 
-void		mt_setup_signals(int enabled);
+void		mt_setup_signals(bool enabled);
 
 # endif // MT_SERVER
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                   COMMON                                   */
-/*                                                                            */
-/* ************************************************************************** */
-
-int			mt_compress_data(char *data, char **output);
-int			mt_decompress_data(char *data, char **output);
-
-# ifdef MT_COMMON
-
-bool		mt_should_rle(char *str, char **rle_string);
-char		*mt_decode_rle(char *str);
-
-# endif // MT_COMMON
 
 #endif // MINITALK_H

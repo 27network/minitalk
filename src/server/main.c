@@ -6,7 +6,7 @@
 /*   By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 17:27:05 by kiroussa          #+#    #+#             */
-/*   Updated: 2023/11/21 17:56:23 by kiroussa         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:36:45 by kiroussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static void	mt_sighandler(int signum, siginfo_t *siginfo, void *ucontext)
 	(void) ucontext;
 	if (signum == SIGINT)
 	{
-		mt_setup_signals(0);
+		mt_setup_signals(false);
 		ft_putendl("\r[*] Shutting down gracefully...");
 		g_server.running = 0;
 		return ;
@@ -32,19 +32,15 @@ static void	mt_sighandler(int signum, siginfo_t *siginfo, void *ucontext)
 		ft_printf("\r[*] Client connected: %d\n", siginfo->si_pid);
 		g_server.last_pid = siginfo->si_pid;
 		g_server.current_buffer = 0;
-		g_server.uses_rle = -1;
-		g_server.main_buffer = NULL;
 		index = 0;
 		while (index < MT_SERVER_BUFFERS)
 			mt_reset_buffer(&g_server.subbuffers[index++]);
 	}
-	if (g_server.uses_rle == -1)
-		g_server.uses_rle = signum == SIGUSR1;
-	else
-		mt_read_bit(signum == SIGUSR1);
+	mt_read_bit(signum == SIGUSR1);
+	kill(g_server.last_pid, SIGUSR1);
 }
 
-void	mt_setup_signals(int enabled)
+void	mt_setup_signals(bool enabled)
 {
 	struct sigaction	sa;
 
@@ -59,24 +55,6 @@ void	mt_setup_signals(int enabled)
 	sigaction(SIGINT, &sa, NULL);
 }
 
-static void	mt_write(char *buf)
-{
-	bool	uses_rle;
-	char	*str;
-
-	uses_rle = g_server.uses_rle;
-	str = buf;
-	if (uses_rle)
-	{
-		ft_printf("writing from rle\n");
-		mt_decompress_data(buf, &str);
-	}
-	write(1, str, ft_strlen(str));
-	write(1, "\n", 1);
-	if (uses_rle)
-		free(str);
-}
-
 static void	mt_handle_subbuffers(void)
 {
 	uint8_t		index;
@@ -88,15 +66,9 @@ static void	mt_handle_subbuffers(void)
 		buf = &g_server.subbuffers[index];
 		if (buf->ready)
 		{
-			ft_printf("\r[*] Received %d bytes: %s\n", buf->size / 8, buf->data);
-			ft_strappend((char **)&g_server.main_buffer, (char *)buf->data);
+			write(1, buf->data, ft_strlen((char *)buf->data));
 			if (buf->data[buf->size / 8 - 1] == '\0')
-			{
-				ft_printf("\r[*] Received full message from %d\n", g_server.last_pid);
-				mt_write((char *)g_server.main_buffer);
-				free(g_server.main_buffer);
-				g_server.main_buffer = NULL;
-			}
+				write(1, "\n", 1);
 			mt_reset_buffer(buf);
 		}
 		index++;
@@ -105,19 +77,17 @@ static void	mt_handle_subbuffers(void)
 
 int	main(int argc, char *argv[])
 {
+	mt_setup_signals(true);
 	(void) argc;
 	(void) argv;
 	ft_printf("[*] Server PID: %d\n", getpid());
-	mt_setup_signals(1);
 	g_server.running = 1;
-	g_server.uses_rle = -1;
 	g_server.last_pid = 0;
-	g_server.main_buffer = NULL;
 	ft_printf("[*] Waiting for clients...\n");
 	while (g_server.running)
 	{
 		mt_handle_subbuffers();
-		usleep(10);
+		usleep(1);
 	}
 	ft_printf("[*] Server stopped.\n");
 	return (0);
