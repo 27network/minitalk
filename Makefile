@@ -6,7 +6,7 @@
 #    By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2023/11/21 21:26:26 by kiroussa         ###   ########.fr        #
+#    Updated: 2023/11/21 21:48:03 by kiroussa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,8 +32,7 @@ SERVER_OBJ		= $(SERVER_SRC:.c=.o)
 
 BONUS_CLIENT_SRC:= $(addprefix $(SRC_FOLDER)_bonus/client/, $(BONUS_CLIENT_SRC))
 BONUS_CLIENT_OBJ= $(BONUS_CLIENT_SRC:.c=.o)
-BONUS_SERVER_SRC:= $(addprefix $(SRC_FOLDER)_bonus/server/, $(BONUS_SERVER_SRC))
-BONUS_SERVER_OBJ= $(BONUS_SERVER_SRC:.c=.o)
+BONUS_SERVER_OBJ:= $(SERVER_OBJ)
 
 CC				= clang
 CFLAGS			= -Wall -Wextra -Werror -g3
