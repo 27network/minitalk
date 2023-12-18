@@ -6,7 +6,7 @@
 #    By: kiroussa <oss@xtrm.me>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2023/11/21 21:48:03 by kiroussa         ###   ########.fr        #
+#    Updated: 2023/12/18 22:19:07 by kiroussa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,7 @@ BONUS_CLIENT_OBJ= $(BONUS_CLIENT_SRC:.c=.o)
 BONUS_SERVER_OBJ:= $(SERVER_OBJ)
 
 CC				= clang
-CFLAGS			= -Wall -Wextra -Werror -g3
+CFLAGS			= -Wall -Wextra -Werror
 COPTS			= -I $(INCLUDES) -I $(LIBFT_SRC)/include
 
 all:			$(NAME)
